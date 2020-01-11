@@ -26,7 +26,7 @@ and give feedback
 
 to subjects given at TalTech.
 
-Backend is accessible here: https://gitlab.cs.ttu.ee/envomp/iti0203-2019-back
+Backend is accessible here: [github.com/envomp/TalTech-subjects-bac](https://github.com/envomp/TalTech-subjects-back)
 
 ## Quick install and setup
 ##### Debian
