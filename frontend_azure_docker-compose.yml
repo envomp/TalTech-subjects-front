@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+
+  front:
+    container_name: front
+    image: greenchat.azurecr.io/greenchat/front:latest
+    restart: unless-stopped
+    ports:
+      - "8099:8080"

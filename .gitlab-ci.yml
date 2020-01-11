@@ -1,0 +1,51 @@
+include:
+  - template: Code-Quality.gitlab-ci.yml
+code_quality:
+  allow_failure: true
+  artifacts:
+    paths: [gl-code-quality-report.json]
+  script:
+    - export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
+    - docker run --env SOURCE_CODE="$PWD" --volume "$PWD":/code --volume /var/run/docker.sock:/var/run/docker.sock "registry.gitlab.com/gitlab-org/security-products/codequality:$SP_VERSION" /code
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  image: docker:latest
+  stage: build
+  variables:
+    DOCKER_DRIVER: overlay
+  services:
+    - docker:dind
+  script:
+    - docker rm -vf $(docker ps -aq) &&
+      docker rmi -f $(docker images -aq) &&
+      docker volume prune -f
+    - docker-compose down --rmi all -v --remove-orphans
+    - docker image ls
+    - docker-compose up --no-start --force-recreate
+    - docker images
+  environment:
+    name: app-service
+    url: https://greenchat.azurewebsites.net
+
+deploy:
+  image: docker:latest
+  stage: deploy
+  variables:
+    DOCKER_DRIVER: overlay
+  services:
+    - docker:dind
+  script:
+    - docker images
+    - echo "$DOCKER_USER $DOCKER_PASSWD $DOCKER_REPOSITORY"
+    - docker login $DOCKER_REPOSITORY -u $DOCKER_USER -p $DOCKER_PASSWD
+    - docker tag front $DOCKER_REPOSITORY/$DOCKER_USER/front:latest
+    - docker push $DOCKER_REPOSITORY/$DOCKER_USER/front:latest
+  environment:
+    name: app-service
+    url: https://greenchat.azurewebsites.net
+
