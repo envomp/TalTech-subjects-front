@@ -1,4 +1,4 @@
-# AngularJs frontend
+# Vue frontend
 
 You can either log in with existing account
 
